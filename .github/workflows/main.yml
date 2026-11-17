@@ -19,7 +19,7 @@ jobs:
       - name: Instalar bibliotecas e rodar script
         run: |
           pip install requests beautifulsoup4
-          python atualizar*.py
+          python *atualizar*.py
       - name: Salvar cupons atualizados
         run: |
           git config user.name "Bot Cupons ML"
