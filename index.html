@@ -1,1 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Cupons ML</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #121212; color: #fff; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .btn-ml { display: inline-block; background: #ffe600; color: #000; font-weight: bold; text-decoration: none; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; }
+        input { width: 100%; padding: 15px; font-size: 16px; border-radius: 8px; border: 1px solid #333; background: #1e1e1e; color: #fff; margin-bottom: 20px; box-sizing: border-box; }
+        .card { background: #1e1e1e; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+        .loja { font-size: 12px; text-transform: uppercase; color: #ffe600; font-weight: bold; }
+        .desc { margin: 5px 0; font-size: 15px; line-height: 1.4; }
+        .validade { font-size: 12px; color: #888; }
+        .acoes { display: flex; flex-direction: column; gap: 8px; min-width: 110px; }
+        button { background: #4ade80; color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #22c55e; }
+        .link-oferta { background: #333; color: #fff; text-decoration: none; padding: 8px; border-radius: 6px; font-size: 13px; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <h2>🎟️ Meus Cupons Mercado Livre</h2>
+    <a href="https://mercadolivre.com.br" target="_blank" class="btn-ml">⚡ Abrir Central Oficial do ML</a>
+    
+    <input type="text" id="busca" placeholder="Filtrar por palavra (ex: celular, livro, 20%, frete)...">
+    <div id="lista">Carregando cupons...</div>
+
+    <script>
+        let todosCupons = [];
+
+        fetch('cupons.json?v=' + new Date().getTime())
+            .then(res => res.json())
+            .then(dados => {
+                todosCupons = dados;
+                renderizar(todosCupons);
+            })
+            .catch(() => {
+                document.getElementById('lista').innerHTML = "Erro ao carregar cupons.json.";
+            });
+
+        document.getElementById('busca').addEventListener('input', (e) => {
+            const termo = e.target.value.toLowerCase();
+            const filtrados = todosCupons.filter(c => 
+                c.descricao.toLowerCase().includes(termo) || 
+                String(c.codigo).toLowerCase().includes(termo)
+            );
+            renderizar(filtrados);
+        });
+
+        function renderizar(lista) {
+            const container = document.getElementById('lista');
+            if (!lista || lista.length === 0) {
+                container.innerHTML = "Nenhum cupom encontrado no momento.";
+                return;
+            }
+            container.innerHTML = lista.map(c => {
+                const cod = Array.isArray(c.codigo) ? c.codigo[0] : c.codigo;
+                return `
+                <div class="card">
+                    <div>
+                        <div class="loja">${c.loja}</div>
+                        <div class="desc">${c.descricao}</div>
+                        <div class="validade">${c.validade}</div>
+                    </div>
+                    <div class="acoes">
+                        <button onclick="copiar('${cod}', this)">${cod}</button>
+                        <a href="${c.link}" target="_blank" class="link-oferta">Abrir Link</a>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function copiar(codigo, botao) {
+            if (codigo === "VER NA DESCRIÇÃO") return;
+            navigator.clipboard.writeText(codigo);
+            const original = botao.innerText;
+            botao.innerText = 'Copiado!';
+            setTimeout(() => botao.innerText = original, 1500);
+        }
+    </script>
+</body>
+</html>
 
