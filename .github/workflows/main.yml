@@ -1,0 +1,29 @@
+name: Atualizar Cupons Mercado Livre
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Instalar bibliotecas e rodar script
+        run: |
+          pip install requests beautifulsoup4
+          python atualizar.py
+      - name: Salvar cupons atualizados
+        run: |
+          git config user.name "Bot Cupons ML"
+          git config user.email "bot@://github.com"
+          git add cupons.json
+          git commit -m "Atualiza cupons ML" || exit 0
+          git push
+          
