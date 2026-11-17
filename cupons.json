@@ -1,1 +1,36 @@
-[]
+name: Atualizar Cupons ML
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Roda automaticamente a cada 1 hora
+  workflow_dispatch: # Permite que você rode manualmente a qualquer momento
+
+permissions:
+  contents: write # Dá permissão para o robô salvar o cupons.json no repositório
+
+jobs:
+  atualizar-cupons:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar código do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar bibliotecas necessárias
+        run: |
+          pip install requests beautifulsoup4
+
+      - name: Rodar o robô de cupons
+        run: python atualizar.py
+
+      - name: Salvar cupons atualizados no GitHub
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add cupons.json
+          git commit -m "Atualiza lista de cupons" || exit 0
+          git push
